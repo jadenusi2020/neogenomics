@@ -1,0 +1,21 @@
+---
+- name: Deploy my_app using Ansible Role
+  hosts: my_instance_dev
+  become: yes
+  gather_facts: yes
+
+  vars:
+    app_branch: "develop"
+    git_repo: "git@bitbucket.org:myorg/my_app.git"
+    tmp_dir: "/tmp/my_app_repo"
+    dest_dir: "/opt/my_app"
+    ssh_key_path: "/home/ec2-user/.ssh/id_rsa"
+
+  roles:
+    - role: my_app_role
+      vars:
+        app_branch: "{{ app_branch }}"
+        git_repo: "{{ git_repo }}"
+        tmp_dir: "{{ tmp_dir }}"
+        dest_dir: "{{ dest_dir }}"
+        ssh_key_path: "{{ ssh_key_path }}"

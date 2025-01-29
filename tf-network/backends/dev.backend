@@ -1,0 +1,5 @@
+bucket          = "my-tf-state"
+key             = "dev/network.tfstate"
+dynamodb_table  = "my-tf-lock"
+encrypt         = "true"
+region          = "eu-west-1"
