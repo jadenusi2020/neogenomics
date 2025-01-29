@@ -1,0 +1,5 @@
+---
+git_repo: "git@bitbucket.org:myorg/my_app.git"
+tmp_dir: "/tmp/my_app_repo"
+dest_dir: "/opt/my_app"
+ssh_key_path: "/home/ec2-user/.ssh/id_rsa"

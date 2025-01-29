@@ -1,0 +1,63 @@
+---
+- name: Ensure group "webapps" exists
+  group:
+    name: webapps
+    gid: 570
+    state: present
+
+- name: Ensure user "my_app_user" exists
+  user:
+    name: my_app_user
+    uid: 1503
+    group: webapps
+    home: /home/my_app_user
+    shell: /bin/bash
+    state: present
+
+- name: Install dependencies (Git, Python, Nginx)
+  yum:
+    name:
+      - git
+      - python3-devel
+      - nginx
+    state: present
+
+- name: Ensure SSH key exists for Bitbucket access
+  copy:
+    src: "{{ ssh_key_path }}"
+    dest: "/home/my_app_user/.ssh/id_rsa"
+    owner: my_app_user
+    group: webapps
+    mode: '0600'
+  become: yes
+
+- name: Clone my_app repository to tmp directory
+  git:
+    repo: "{{ git_repo }}"
+    dest: "{{ tmp_dir }}"
+    version: "{{ app_branch }}"
+    update: yes
+    accept_hostkey: yes
+    key_file: "{{ ssh_key_path }}"
+  become_user: my_app_user
+
+- name: Copy my_app from tmp dir to /opt/my_app
+  copy:
+    src: "{{ tmp_dir }}/"
+    dest: "{{ dest_dir }}"
+    owner: my_app_user
+    group: webapps
+    mode: '0755'
+    remote_src: yes
+  notify: Restart Nginx
+
+- name: Run 'make install' as my_app_user
+  command: make install
+  args:
+    chdir: "{{ dest_dir }}"
+  become_user: my_app_user
+  notify: Restart Nginx
+
+- name: Print success message
+  debug:
+    msg: "Application my_app successfully deployed!"
